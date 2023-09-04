@@ -19,17 +19,17 @@
       }
       .category-badge {
         position: relative;
-        left: 0px;
+        left: 15px;
         bottom: 10px;
       }
       .checkbox-button {
         position: relative;
         right: 0px;
         bottom: 10px;
-        background-color: #438029;
+        background-color: CHECKBOX;
       }
       .hover-green:hover {
-        background-color: #294D19;
+        background-color: HOVER;
       }
       .entry_row {
         height: 68px;
@@ -54,10 +54,13 @@
       .move-up {
         top: -11px;
       }
+      .margin-auto {
+        margin: auto;
+      }
     </style>
   </head>
   <!--Navbar-->
-  <nav class="navbar" style="background-color:#9c6644">
+  <nav class="navbar" style="background-color:NAVBAR">
     <div class="nav-wrapper">
       <a class="modal-trigger" href="#settingsModal"><i class="material-icons left" style="position:relative;left:10px">settings</i></a>
       <a class="brand-logo center" id="nav_title">To-Do List</a>
@@ -104,14 +107,14 @@
       <div id="password">
         <label for="pwd">Password:</label>
         <input type="password" id="pwd">
-        <a id="loginBtn" class="waves-effect waves-light btn hover-green" onclick="getElement('loginBtn').setAttribute('onclick','callServer()')" style="background-color:#438029">Login</a>
+        <a id="loginBtn" class="waves-effect waves-light btn hover-green" onclick="getElement('loginBtn').setAttribute('onclick','callServer()')" style="background-color:LOGINBUTTON">Login</a>
       </div>
 
       <table><tbody id="entries"></tbody></table>
       <br>
       <div class="s12" id="add-button" hidden>
         <div class="right-align">
-          <a class="waves-effect waves-light btn hover-green" onclick="createEntry()" style="background-color:#438029"><i class="material-icons">add</i></a>
+          <a class="waves-effect waves-light btn hover-green" onclick="createEntry()" style="background-color:NEWENTRY"><i class="material-icons">add</i></a>
         </div>
       </div>
     </div>
@@ -279,7 +282,7 @@
           check.appendChild(moveDown)
 
           var text = document.createElement("td")
-          text.className = "col s10"
+          text.className = "col s9"
           tr.appendChild(text)
 
           var textbox = document.createElement("input")
@@ -290,16 +293,27 @@
           text.appendChild(textbox)
 
           var catBadge = document.createElement("td")
-          catBadge.className = "col s1"
+          catBadge.className = "col s1 margin-auto"
           tr.appendChild(catBadge)
 
           var badge = document.createElement("span")
           badge.id = "badge-"+i
           badge.style="background-color:"+getCatColor(data.entries[i].cat)
-          badge.className = "new badge category-badge"
+          badge.className = "new badge category-badge margin-auto"
           badge.setAttribute("data-badge-caption",data.entries[i].cat)
           badge.setAttribute("onclick","advanceCategory('badge-"+i+"')")
           catBadge.appendChild(badge)
+
+          var text2 = document.createElement("td")
+          text2.className = "col s1"
+          tr.appendChild(text2)
+
+          var textbox2 = document.createElement("input")
+          if (entries[i] != "") {
+            textbox2.value = data.entries[i].date
+          }
+          textbox2.setAttribute("onchange","updateServer()")
+          text2.appendChild(textbox2)
         }
       }
 
@@ -556,8 +570,9 @@
         var rows = getElement("entries").rows
         for (var i = 0; i < rows.length; i++) {
           var text = rows[i].children[1].children[0].value
+          var date = rows[i].children[3].children[0].value
           var cat = rows[i].children[2].children[0].getAttribute("data-badge-caption")
-          data.entries.push({"name":text,"cat":cat})
+          data.entries.push({"name":text,"cat":cat,"date":date})
         }
         data.cats = getCategories()
         return data
@@ -602,10 +617,10 @@
       var colorPalette = {
           bg: {r:255,g:255,b:255},
           matter: [
-            {r:212,g:175,b:55}, // darkPRPL
-            {r:225,g:193,b:88}, // rockDust
-            {r:125,g:170,b:106}, // solorFlare
-            {r:97,g:154,b:70} // totesASun
+            {r:RED1,g:GREEN1,b:BLUE1}, // darkPRPL
+            {r:RED2,g:GREEN2,b:BLUE2}, // rockDust
+            {r:RED3,g:GREEN3,b:BLUE3}, // solorFlare
+            {r:RED4,g:GREEN4,b:BLUE4} // totesASun
           ]
       };
 
