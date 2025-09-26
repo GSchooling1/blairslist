@@ -22,6 +22,11 @@
         left: 15px;
         bottom: 10px;
       }
+      .progress-badge {
+        position: relative;
+        left: 15px;
+        bottom: 10px;
+      }
       .checkbox-button {
         position: relative;
         right: 0px;
@@ -101,7 +106,7 @@
 
 
   <body onload="start()">
-    <img id="noEntryImage" src="/blairslist/noEntryImage.png" style="position: fixed;bottom: 45vh;right: 46%;width:8%" hidden>
+    <img id="noEntryImage" src="https://github.com/GSchooling1/blairslist/blob/main/noEntryImage.png" style="position: fixed;bottom: 45vh;right: 46%;width:8%" hidden>
     <canvas id="canvas" hidden></canvas>
     <div class="container">
       <div id="password">
@@ -110,7 +115,31 @@
         <a id="loginBtn" class="waves-effect waves-light btn hover-green" onclick="getElement('loginBtn').setAttribute('onclick','callServer()')" style="background-color:LOGINBUTTON">Login</a>
       </div>
 
-      <table><tbody id="entries"></tbody></table>
+      <table><tbody id="entries">
+      
+      <!--<tr id="1" class="row entry_row valign-wrapper">
+        <td class="col s1">
+          <div class="move-entry move-up" onclick="moveEntry(1,true)"></div>
+          <a class="waves-effect waves-light btn checkbox-button hover-green" id="1_checkbox" onclick="removeEntry(1)">
+            <i class="material-icons">check</i>
+          </a>
+          <div class="move-entry move-down" onclick="moveEntry(1,false)"></div>
+        </td>
+        <td class="col s8">
+          <input onchange="updateServer()">
+        </td>
+        <td class="col s1 margin-auto">
+          <span id="badge-1" class="new badge category-badge margin-auto" data-badge-caption="other" onclick="advanceCategory('badge-1')" style="background-color: rgb(67, 128, 41);"></span>
+        </td>
+        <td class="col s1 margin-auto">
+          <span id="badge-2" class="new badge progress-badge margin-auto" data-badge-caption="100%" style="background-color: rgb(67, 128, 41);" onclick="advanceProgress('badge-2')"></span>
+        </td>
+        <td class="col s1">
+          <input onchange="updateServer()">
+        </td>
+      </tr>-->
+      
+      </tbody></table>
       <br>
       <div class="s12" id="add-button" hidden>
         <div class="right-align">
@@ -151,7 +180,7 @@
 
       function createEntry() {
         var data = getData()
-        data.entries.push({"name":"","cat":"other"})
+        data.entries.push({"name":"","cat":"other","progress":"0%"})
         writeEntries(data)
         updateServer()
         updateNoEntryImage()
@@ -237,6 +266,22 @@
         //alert("Didn't expedite server")
       }
 
+      var entriesInProperiesService = {
+        "entries":[
+          {"name":"Cardinal service notation application","cat":"Other","date":"undefined"},
+          {"name":"Call shree airlines","cat":"Thurs","date":"undefined"},
+          {"name":"","cat":"other","date":"undefined"}
+        ],
+        "cats":[
+          {"name":"Mon","color":"..43d0b9"},
+          {"name":"Tues","color":"..90cef4"},
+          {"name":"Wed","color":"..acb1fb"},
+          {"name":"Thurs","color":"..dfb8ff"},
+          {"name":"Fri","color":"..ffccfd"},
+          {"name":"Other","color":"..ffffff"}
+        ]
+      }
+
       function writeEntries(data) {
         writeCatTags(data.cats)
         
@@ -282,7 +327,7 @@
           check.appendChild(moveDown)
 
           var text = document.createElement("td")
-          text.className = "col s9"
+          text.className = "col s8"
           tr.appendChild(text)
 
           var textbox = document.createElement("input")
@@ -303,6 +348,19 @@
           badge.setAttribute("data-badge-caption",data.entries[i].cat)
           badge.setAttribute("onclick","advanceCategory('badge-"+i+"')")
           catBadge.appendChild(badge)
+
+          var progressBadge = document.createElement("td")
+          progressBadge.className = "col s1 margin-auto"
+          tr.appendChild(progressBadge)
+
+          var badge2 = document.createElement("span")
+          var progressTxt = data.entries[i].progress ? data.entries[i].progress+"%" : "0%"
+          badge2.id = "badge-progress-"+i
+          badge2.style="background-color:"+getProgressColor(progressTxt)
+          badge2.className = "new badge progress-badge margin-auto"
+          badge2.setAttribute("data-badge-caption",progressTxt)
+          badge2.setAttribute("onclick","advanceProgress('badge-progress-"+i+"')")
+          progressBadge.appendChild(badge2)
 
           var text2 = document.createElement("td")
           text2.className = "col s1"
@@ -341,7 +399,7 @@
       }
 
       function updateBadges() {
-        var badges = document.getElementsByClassName("badge")
+        var badges = document.getElementsByClassName("category-badge")
         for (var i = 0; i < badges.length; i++) {
           var name = badges[i].getAttribute("data-badge-caption")
           badges[i].style.backgroundColor = getCatColor(name)
@@ -524,6 +582,40 @@
         updateServer()
       }
 
+      function advanceProgress(id) {
+        const GoUpBy = 10
+        var elem = getElement(id)
+        var currentTxt = elem.getAttribute("data-badge-caption")
+        var currentNum = currentTxt.indexOf("%") > -1 ? Number(currentTxt.replace("%","")) : 0
+        var newNum = currentNum + GoUpBy
+        if (newNum > 100) {newNum = 0}
+        elem.setAttribute("data-badge-caption",newNum+"%")
+        elem.style.backgroundColor = getProgressColor(newNum+"%")
+        updateServer()
+      }
+
+      function getProgressColor(progress) {
+        var currentNum = progress ? Number(progress.replace("%","")) : 0
+        const COLORS = [
+          [0,10,"#4287f5"],
+          [10,20,"#4287f5"],
+          [20,30,"#4287f5"],
+          [30,40,"#4287f5"],
+          [40,50,"#4287f5"],
+          [50,60,"#4287f5"],
+          [60,70,"#4287f5"],
+          [70,80,"#4287f5"],
+          [80,90,"#4287f5"],
+          [90,1000,"#4287f5"]
+        ]
+        for (var i = 0; i < COLORS.length; i++) {
+          if (currentNum >= COLORS[i][0] && currentNum < COLORS[i][1]) {
+            return COLORS[i][2]
+          }
+        }
+        return "#438029" //default greens
+      }
+
       function getCategories() {
         var elem = getElement("categories-settings")
         var cats = []
@@ -570,9 +662,10 @@
         var rows = getElement("entries").rows
         for (var i = 0; i < rows.length; i++) {
           var text = rows[i].children[1].children[0].value
-          var date = rows[i].children[3].children[0].value
+          var date = rows[i].children[4].children[0].value
           var cat = rows[i].children[2].children[0].getAttribute("data-badge-caption")
-          data.entries.push({"name":text,"cat":cat,"date":date})
+          var progress = rows[i].children[3].children[0].getAttribute("data-badge-caption").replace("%","")
+          data.entries.push({"name":text,"cat":cat,"date":date,"progress":progress})
         }
         data.cats = getCategories()
         return data
@@ -617,10 +710,10 @@
       var colorPalette = {
           bg: {r:255,g:255,b:255},
           matter: [
-            {r:RED1,g:GREEN1,b:BLUE1}, // darkPRPL
-            {r:RED2,g:GREEN2,b:BLUE2}, // rockDust
-            {r:RED3,g:GREEN3,b:BLUE3}, // solorFlare
-            {r:RED4,g:GREEN4,b:BLUE4} // totesASun
+            {r:82,g:32,b:139}, // darkPRPL
+            {r:0,g:122,b:42}, // rockDust
+            {r:222,g:174,b:2}, // solorFlare
+            {r:255,g:252,b:59} // totesASun
           ]
       };
 
